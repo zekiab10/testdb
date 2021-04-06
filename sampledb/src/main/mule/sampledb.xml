@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="ee71a196-f116-4f66-b311-39058b04f7f9" >
+		<db:my-sql-connection host="localhost" port="3306" user="root" password="Ahmeday10" />
+	</db:config>
+	<flow name="getall" doc:id="31cca3ad-3e4c-41ff-888e-aa2f434d6bc0" >
+		<db:select doc:id="29ddf68d-5ff1-4027-a4da-8c2ef3f24e1b" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT * FROM sakila.actor;]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="ad2d2d4c-5edf-435a-9e55-8d2d34d9d0c5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	date: payload01.last_update as String,
+	name: payload01.last_name ++ " "  ++ payload01.first_name,
+	id: payload01.actor_id
+	
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="32e3f195-3531-48bb-a3be-727925ba2865" message="#[payload]"/>
+	</flow>
+</mule>
